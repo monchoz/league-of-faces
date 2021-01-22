@@ -8,7 +8,10 @@ We'll use Dlib's `get_frontal_face_detector`, along with the [68 point shape pre
 
 The script uses the face detection algorithm in Dlib to read any front faces. It uses the prediction points to create and crop the face then saves it as an image for each face detected.
 
-The images detected where used as training data to build a Deep Learning model that is used to predict the name of the characters (Champions) on the video.
+The images detected where used as training data to build a Deep Learning model that is used to predict the name of the characters (Champions) on the video. Trained with the state of the art image classification model with Resnet, in PyTorch, using the fastai library.
+
+![](Screenshot_1.png)
+![](Screenshot_2.png)
 
 ## Instructions
 Install `pipenv`

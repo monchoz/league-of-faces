@@ -1,6 +1,7 @@
 import cv2
 import dlib
-from PIL import Image
+from PIL import Image as Img
+from fastai.vision import *
 
 stream = cv2.VideoCapture('video.mp4')
 
@@ -8,10 +9,18 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_68.dat')
 
 frame = stream.read()
-crop_width = 108
+crop_width = 100
 incremental = 100
 simple_crop = True
-faces_dirname = 'images'
+faces_dirname = 'images/'
+classes = ['Ahri', 'Darius', 'Draven', 'Graves', 'Katarina', 'Leona', 'Zyra']
+
+learn = load_learner(path='./', file='trained_model.pkl')
+print('Model loaded')
+
+model = learn.model # the Fastai model
+mean_std_stats = learn.data.stats # the input means/standard deviations
+class_names = learn.data.classes # the class names
 
 while True:
     _, frame = stream.read()
@@ -20,9 +29,9 @@ while True:
     img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     rects = detector(img_gray, 0)
-    img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    img = Img.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
-    print("Faces detected: %d" % (len(rects)))
+    # print("Faces detected: %d" % (len(rects)))
 
     # loop through detected faces
     for rect in rects:
@@ -49,7 +58,11 @@ while True:
             cropped_image = image_to_crop.crop(crop_area)
             crop_size = (crop_width, crop_width)
             cropped_image.thumbnail(crop_size)
-            cropped_image.save(faces_dirname + "/" + str(incremental) + ".jpg", "JPEG")
+            cropped_name = faces_dirname + str(incremental) + ".jpg"
+            cropped_image.save(cropped_name, "JPEG")
+            # run prediction
+            predicted_classes, y, probs = learn.predict(open_image(cropped_name))
+            print(f'Found {predicted_classes} ({round(probs[y].numpy()*100,2)}%)')
             incremental += 1
 
     cv2.imshow("League of Faces", frame)
