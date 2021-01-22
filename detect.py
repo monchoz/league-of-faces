@@ -9,6 +9,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_68.dat')
 
 frame = stream.read()
+champion = ''
 crop_width = 100
 incremental = 100
 simple_crop = True
@@ -62,9 +63,20 @@ while True:
             cropped_image.save(cropped_name, "JPEG")
             # run prediction
             predicted_classes, y, probs = learn.predict(open_image(cropped_name))
+            champion = str(predicted_classes)
             print(f'Found {predicted_classes} ({round(probs[y].numpy()*100,2)}%)')
             incremental += 1
 
+    font = cv2.FONT_HERSHEY_SIMPLEX 
+
+    # inserting text on video 
+    cv2.putText(frame,  
+                champion,  
+                (50, 50),  
+                font, 1,  
+                (0, 255, 255),  
+                2,  
+                cv2.LINE_4) 
     cv2.imshow("League of Faces", frame)
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
